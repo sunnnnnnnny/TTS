@@ -71,12 +71,12 @@ class TTS(nn.Module):
         self.voice_converter = None
         self.csapi = None
         self.cs_api_model = cs_api_model
-        self.model_name = ""
+        # self.model_name = ""
 
         if gpu:
             warnings.warn("`gpu` will be deprecated. Please use `tts.to(device)` instead.")
 
-        if model_name is not None:
+        if model_name is not None and len(model_name) > 0:
             if "tts_models" in model_name or "coqui_studio" in model_name:
                 self.load_tts_model_by_name(model_name, gpu)
             elif "voice_conversion_models" in model_name:
@@ -331,9 +331,9 @@ class TTS(nn.Module):
                 Speed factor to use for 🐸Coqui Studio models, between 0 and 2.0. If None, Studio models use 1.0.
                 Defaults to None.
         """
-        self._check_arguments(
-            speaker=speaker, language=language, speaker_wav=speaker_wav, emotion=emotion, speed=speed, **kwargs
-        )
+        # self._check_arguments(
+        #     speaker=speaker, language=language, speaker_wav=speaker_wav, emotion=emotion, speed=speed, **kwargs
+        # )
         if self.csapi is not None:
             return self.tts_coqui_studio(
                 text=text, speaker_name=speaker, language=language, emotion=emotion, speed=speed
@@ -388,7 +388,7 @@ class TTS(nn.Module):
             kwargs (dict, optional):
                 Additional arguments for the model.
         """
-        self._check_arguments(speaker=speaker, language=language, speaker_wav=speaker_wav, **kwargs)
+        # self._check_arguments(speaker=speaker, language=language, speaker_wav=speaker_wav, **kwargs)
 
         if self.csapi is not None:
             return self.tts_coqui_studio(

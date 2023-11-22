@@ -646,7 +646,7 @@ class VoiceBpeTokenizer:
         txt = self.preprocess_text(txt, lang)
         lang = "zh-cn" if lang == "zh" else lang
         txt = f"[{lang}]{txt}"
-        txt = txt.replace(" ", "[SPACE]")
+        txt = txt.replace(" ", "[SPACE]") # '[zh-cn]ji3ke1da4er2liang4de5xing1xing1gua4zai4ye4kong1[SPACE]fang3fu2shi4tian1shang4de5ren2er2ti2zhe5deng1long2zai4xun2shi4na4hao4han4de5tai4kong1'
         return self.tokenizer.encode(txt).ids
 
     def decode(self, seq):

@@ -263,15 +263,15 @@ class PerceiverResampler(nn.Module):
         self.norm = RMSNorm(dim)
 
     def forward(self, x, mask=None):
-        batch = x.shape[0]
+        batch = x.shape[0]  # x [1,345,1024]
 
-        x = self.proj_context(x)
+        x = self.proj_context(x)  # x [1,345,1024]
 
-        latents = repeat(self.latents, "n d -> b n d", b=batch)
+        latents = repeat(self.latents, "n d -> b n d", b=batch)  # [1,32,1024]
 
         for attn, ff in self.layers:
-            latents = attn(latents, x, mask=mask) + latents
-            latents = ff(latents) + latents
+            latents = attn(latents, x, mask=mask) + latents  # [1,32,1024]
+            latents = ff(latents) + latents  # [1,32,1024]
 
         return self.norm(latents)
 

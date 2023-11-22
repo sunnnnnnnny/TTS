@@ -105,7 +105,7 @@ class XTTSDataset(torch.utils.data.Dataset):
 
     def load_item(self, sample):
         text = str(sample["text"])
-        tseq = self.get_text(text, sample["language"])
+        tseq = self.get_text(text, sample["language"])  # token and int
         audiopath = sample["audio_file"]
         wav = load_audio(audiopath, self.sample_rate)
         if text is None or len(text.strip()) == 0:
@@ -114,12 +114,12 @@ class XTTSDataset(torch.utils.data.Dataset):
             # Ultra short clips are also useless (and can cause problems within some models).
             raise ValueError
 
-        if self.use_masking_gt_prompt_approach:
+        if self.use_masking_gt_prompt_approach:  # yes
             # get a slice from GT to condition the model
             cond, _, cond_idxs = get_prompt_slice(
                 audiopath, self.max_conditioning_length, self.min_conditioning_length, self.sample_rate, self.is_eval
-            )
-            # if use masking do not use cond_len
+            )  # self.max_conditioning_length = 1332300 self.min_conditioning_length = 66150  self.sample_rate = 22050
+            # if use masking do not use cond_len    # cond [1,132300] (may be padding ) cond_idxs [0,38734]
             cond_len = torch.nan
         else:
             ref_sample = (
@@ -137,8 +137,8 @@ class XTTSDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         if self.is_eval:
-            sample = self.samples[index]
-            sample_id = str(index)
+            sample = self.samples[index]  # dict_keys(['text', 'audio_file', 'speaker_name', 'root_path', 'language', 'audio_unique_name'])
+            sample_id = str(index)  # sample_id = 0
         else:
             # select a random language
             lang = random.choice(list(self.samples.keys()))
@@ -158,7 +158,7 @@ class XTTSDataset(torch.utils.data.Dataset):
         # try to load the sample, if fails added it to the failed samples list
         try:
             tseq, audiopath, wav, cond, cond_len, cond_idxs = self.load_item(sample)
-        except:
+        except:  # cond  > padding to max_length  cond_idxs [0, 38734]  cond_len nan
             if self.debug_failures:
                 print(f"error loading {sample['audio_file']} {sys.exc_info()}")
             self.failed_samples.add(sample_id)

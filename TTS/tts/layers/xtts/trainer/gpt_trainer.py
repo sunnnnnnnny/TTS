@@ -211,7 +211,7 @@ class GPTTrainer(BaseTTS):
         cond_mels: MEL float tensor, (b, num_samples, 80,t_m)
         cond_idxs: cond start and end indexs, (b, 2)
         cond_lens: long tensor, (b,)
-        """
+        """   # text_inputs, text_lengths, audio_codes, wav_lengths, cond_mels, cond_idxs, cond_lens
         losses = self.xtts.gpt(
             text_inputs,
             text_lengths,
@@ -307,9 +307,9 @@ class GPTTrainer(BaseTTS):
 
         loss_text, loss_mel, _ = self.forward(
             text_inputs, text_lengths, audio_codes, wav_lengths, cond_mels, cond_idxs, cond_lens
-        )
-        loss_dict["loss_text_ce"] = loss_text * self.args.gpt_loss_text_ce_weight
-        loss_dict["loss_mel_ce"] = loss_mel * self.args.gpt_loss_mel_ce_weight
+        )  # loss_text.mean(), loss_mel.mean(), mel_logits  #  mel_logits [3,1026,180]
+        loss_dict["loss_text_ce"] = loss_text * self.args.gpt_loss_text_ce_weight  # weight = 0.01
+        loss_dict["loss_mel_ce"] = loss_mel * self.args.gpt_loss_mel_ce_weight  # weight = 1.0
         loss_dict["loss"] = loss_dict["loss_text_ce"] + loss_dict["loss_mel_ce"]
         return {"model_outputs": None}, loss_dict
 
@@ -362,7 +362,7 @@ class GPTTrainer(BaseTTS):
         else:
             # init dataloader
             dataset = XTTSDataset(self.config, samples, self.xtts.tokenizer, config.audio.sample_rate, is_eval)
-
+            # dataset.__getitem__(0)
             # wait all the DDP process to be ready
             if num_gpus > 1:
                 torch.distributed.barrier()

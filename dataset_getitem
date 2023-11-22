@@ -1,0 +1,50 @@
+.//TTS/encoder/dataset.py:114:    def __getitem__(self, idx):
+.//TTS/utils/generic_utils.py:192:    def __getitem__(self, key):
+Binary file .//TTS/utils/__pycache__/generic_utils.cpython-39.pyc matches
+Binary file .//TTS/tts/layers/xtts/trainer/__pycache__/dataset.cpython-39.pyc matches
+.//TTS/tts/layers/xtts/trainer/dataset.py:138:    def __getitem__(self, index):
+Binary file .//TTS/tts/datasets/__pycache__/dataset.cpython-39.pyc matches
+.//TTS/tts/datasets/dataset.py:200:    def __getitem__(self, idx):
+.//TTS/tts/datasets/dataset.py:398:            batch (Dict): Batch returned by `__getitem__`.
+.//TTS/tts/datasets/dataset.py:600:    def __getitem__(self, index):
+.//TTS/tts/datasets/dataset.py:709:    def __getitem__(self, idx):
+.//TTS/tts/datasets/dataset.py:860:    def __getitem__(self, idx):
+.//TTS/tts/utils/monotonic_align/core.c:2574:static PyObject *__pyx_array___pyx_pf_15View_dot_MemoryView_5array_10__getitem__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_item); /* proto */
+.//TTS/tts/utils/monotonic_align/core.c:2584:static PyObject *__pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_4__getitem__(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index); /* proto */
+.//TTS/tts/utils/monotonic_align/core.c:5694: *     def __getitem__(self, item):
+.//TTS/tts/utils/monotonic_align/core.c:5729: *     def __getitem__(self, item):             # <<<<<<<<<<<<<<
+.//TTS/tts/utils/monotonic_align/core.c:5735:static PyObject *__pyx_array___getitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_item); /*proto*/
+.//TTS/tts/utils/monotonic_align/core.c:5736:static PyObject *__pyx_array___getitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_item) {
+.//TTS/tts/utils/monotonic_align/core.c:5739:  __Pyx_RefNannySetupContext("__getitem__ (wrapper)", 0);
+.//TTS/tts/utils/monotonic_align/core.c:5740:  __pyx_r = __pyx_array___pyx_pf_15View_dot_MemoryView_5array_10__getitem__(((struct __pyx_array_obj *)__pyx_v_self), ((PyObject *)__pyx_v_item));
+.//TTS/tts/utils/monotonic_align/core.c:5747:static PyObject *__pyx_array___pyx_pf_15View_dot_MemoryView_5array_10__getitem__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_item) {
+.//TTS/tts/utils/monotonic_align/core.c:5755:  __Pyx_RefNannySetupContext("__getitem__", 0);
+.//TTS/tts/utils/monotonic_align/core.c:5759: *     def __getitem__(self, item):
+.//TTS/tts/utils/monotonic_align/core.c:5777: *     def __getitem__(self, item):             # <<<<<<<<<<<<<<
+.//TTS/tts/utils/monotonic_align/core.c:5786:  __Pyx_AddTraceback("View.MemoryView.array.__getitem__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+.//TTS/tts/utils/monotonic_align/core.c:7436: *     def __getitem__(memoryview self, object index):             # <<<<<<<<<<<<<<
+.//TTS/tts/utils/monotonic_align/core.c:7442:static PyObject *__pyx_memoryview___getitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_index); /*proto*/
+.//TTS/tts/utils/monotonic_align/core.c:7443:static PyObject *__pyx_memoryview___getitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_index) {
+.//TTS/tts/utils/monotonic_align/core.c:7446:  __Pyx_RefNannySetupContext("__getitem__ (wrapper)", 0);
+.//TTS/tts/utils/monotonic_align/core.c:7447:  __pyx_r = __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_4__getitem__(((struct __pyx_memoryview_obj *)__pyx_v_self), ((PyObject *)__pyx_v_index));
+.//TTS/tts/utils/monotonic_align/core.c:7454:static PyObject *__pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_4__getitem__(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index) {
+.//TTS/tts/utils/monotonic_align/core.c:7469:  __Pyx_RefNannySetupContext("__getitem__", 0);
+.//TTS/tts/utils/monotonic_align/core.c:7473: *     def __getitem__(memoryview self, object index):
+.//TTS/tts/utils/monotonic_align/core.c:7483: *     def __getitem__(memoryview self, object index):
+.//TTS/tts/utils/monotonic_align/core.c:7496: *     def __getitem__(memoryview self, object index):
+.//TTS/tts/utils/monotonic_align/core.c:7602: *     def __getitem__(memoryview self, object index):             # <<<<<<<<<<<<<<
+.//TTS/tts/utils/monotonic_align/core.c:7612:  __Pyx_AddTraceback("View.MemoryView.memoryview.__getitem__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+.//TTS/tts/utils/monotonic_align/core.c:17416:  __pyx_array___getitem__, /*mp_subscript*/
+.//TTS/tts/utils/monotonic_align/core.c:17802:  __pyx_memoryview___getitem__, /*mp_subscript*/
+Binary file .//TTS/tts/utils/monotonic_align/core.cpython-39-darwin.so matches
+.//TTS/tts/models/delightful_tts.py:394:    def __getitem__(self, idx):
+.//TTS/tts/models/delightful_tts.py:419:            return self.__getitem__(self.rescue_item_idx)
+Binary file .//TTS/tts/models/__pycache__/vits.cpython-39.pyc matches
+.//TTS/tts/models/vits.py:262:    def __getitem__(self, idx):
+.//TTS/tts/models/vits.py:280:            return self.__getitem__(self.rescue_item_idx)
+.//TTS/vocoder/datasets/gan_dataset.py:71:    def __getitem__(self, idx):
+Binary file .//TTS/vocoder/datasets/__pycache__/gan_dataset.cpython-39.pyc matches
+Binary file .//TTS/vocoder/datasets/__pycache__/wavernn_dataset.cpython-39.pyc matches
+Binary file .//TTS/vocoder/datasets/__pycache__/wavegrad_dataset.cpython-39.pyc matches
+.//TTS/vocoder/datasets/wavernn_dataset.py:36:    def __getitem__(self, index):
+.//TTS/vocoder/datasets/wavegrad_dataset.py:66:    def __getitem__(self, idx):

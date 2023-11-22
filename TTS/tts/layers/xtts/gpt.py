@@ -355,13 +355,13 @@ class GPT(nn.Module):
         cond_input: (b, 80, s) or (b, 1, 80, s)
         conds: (b, 1024, s)
         """
-        conds = None
+        conds = None  # cond_input [1,80,345]
         if not return_latent:
             if cond_input.ndim == 4:
                 cond_input = cond_input.squeeze(1)
-            conds = self.conditioning_encoder(cond_input)  # (b, d, s)
-            if self.use_perceiver_resampler:
-                conds = self.conditioning_perceiver(conds.permute(0, 2, 1)).transpose(1, 2)  # (b, d, 32)
+            conds = self.conditioning_encoder(cond_input)  # (b, d, s)  > [1,1024,345]
+            if self.use_perceiver_resampler:  # yes
+                conds = self.conditioning_perceiver(conds.permute(0, 2, 1)).transpose(1, 2)  # (b, d, 32)  input: [1,345,1024] -> [1,32,1024] -> [1,1024,32]
         else:
             # already computed
             conds = cond_input.unsqueeze(1)
@@ -398,61 +398,61 @@ class GPT(nn.Module):
         if self.max_conditioning_inputs == 0:
             assert cond_mels is None, " ❗ cond_mels is not None, but max_conditioning_inputs == 0"
 
-        max_text_len = text_lengths.max()
-        code_lengths = torch.ceil(wav_lengths / self.code_stride_len).long() + 3
+        max_text_len = text_lengths.max() # tensor([65, 47, 72])  max_text_len= 72
+        code_lengths = torch.ceil(wav_lengths / self.code_stride_len).long() + 3  # wav_lengths:tensor([173213, 119453, 178845])   self.code_stride_len=1024  code_lengths >  tensor([173, 120, 178])
 
-        if cond_lens is not None:
+        if cond_lens is not None:  # cond_lens None
             if self.use_perceiver_resampler:
                 cond_lens = cond_lens // self.perceiver_cond_length_compression
             else:
                 cond_lens = cond_lens // self.code_stride_len
 
-        if cond_idxs is not None:
+        if cond_idxs is not None:  # tensor([[ 23288, 140267], [  7759, 109636], [ 19181, 148713]])
             # recompute cond idxs for mel lengths
             for idx in range(cond_idxs.size(0)):
-                if self.use_perceiver_resampler:
+                if self.use_perceiver_resampler:  # yes  # self.perceiver_cond_length_compression = 256
                     cond_idxs[idx] = cond_idxs[idx] // self.perceiver_cond_length_compression
                 else:
                     cond_idxs[idx] = cond_idxs[idx] // self.code_stride_len
-
+        # cond_idxs  tensor([[ 90, 547], [ 30, 428], [ 74, 580]])
         # ensure that the cond_mel does not have padding
         # if cond_lens is not None and cond_idxs is None:
         #     min_cond_len = torch.min(cond_lens)
         #     cond_mels = cond_mels[:, :, :, :min_cond_len]
 
         # If len(codes) + 3 is larger than maxiumum allowed length, we truncate the codes.
-        max_mel_len = code_lengths.max()
+        max_mel_len = code_lengths.max()  # [173, 120, 178] > max_mel_len = 178
 
-        if max_mel_len > audio_codes.shape[-1]:
+        if max_mel_len > audio_codes.shape[-1]:  # audio_codes [3,175]
             audio_codes = F.pad(audio_codes, (0, max_mel_len - audio_codes.shape[-1]))
-
+        # audio_codes [3,178]
         # 💖 Lovely assertions
         assert (
-            max_mel_len <= audio_codes.shape[-1]
+            max_mel_len <= audio_codes.shape[-1]  # max_mel_len = 178  audio_codes [3,178]
         ), f" ❗ max_mel_len ({max_mel_len}) > audio_codes.shape[-1] ({audio_codes.shape[-1]})"
         assert (
-            max_text_len <= text_inputs.shape[-1]
+            max_text_len <= text_inputs.shape[-1]  # max_text_len = 72  text_inputs [3,72]
         ), f" ❗ max_text_len ({max_text_len}) > text_inputs.shape[-1] ({text_inputs.shape[-1]})"
 
-        # Append stop token to text inputs
-        text_inputs = F.pad(text_inputs[:, :max_text_len], (0, 1), value=self.stop_text_token)
+        # Append stop token to text inputs        self.stop_text_token = 0
+        text_inputs = F.pad(text_inputs[:, :max_text_len], (0, 1), value=self.stop_text_token)  # text_inputs = [3,73]
 
-        # Append silence token to mel codes
-        audio_codes = F.pad(audio_codes[:, :max_mel_len], (0, 1), value=self.stop_audio_token)
+        # Append silence token to mel codes       self.stop_audio_token = 1025
+        audio_codes = F.pad(audio_codes[:, :max_mel_len], (0, 1), value=self.stop_audio_token)  # audio_codes = [3,179]
 
         # Pad mel codes with stop_audio_token
         audio_codes = self.set_mel_padding(
-            audio_codes, code_lengths - 3
+            audio_codes, code_lengths - 3  # audio_codes [3,179] code_lengths tensor([173, 120, 178]) > audio_codes [3,179]
         )  # -3 to get the real code lengths without consider start and stop tokens that was not added yet
 
         # Build input and target tensors
         # Prepend start token to inputs and append stop token to targets
         text_inputs, text_targets = self.set_inputs_and_targets(
-            text_inputs, self.start_text_token, self.stop_text_token
-        )
+            text_inputs, self.start_text_token, self.stop_text_token  # text_inputs [3,73] self.start_text_token = 261  self.stop_text_token = 0
+        )  # text_inputs [3,74]  text_targets [3,74]
         audio_codes, mel_targets = self.set_inputs_and_targets(
-            audio_codes, self.start_audio_token, self.stop_audio_token
-        )
+            audio_codes, self.start_audio_token, self.stop_audio_token  # self.start_audio_token = 1024  self.stop_audio_token = 1025
+        )  # audio_codes [3,180] mel_targets [3,180]
 
         # Set attn_mask
         attn_mask_cond = None
@@ -464,66 +464,66 @@ class GPT(nn.Module):
                 cond_mels.shape[-1],
                 dtype=torch.bool,
                 device=text_inputs.device,
-            )
+            )  # cond_mels [3,1,80,517] attn_mask_cond > [3,517] all True
             attn_mask_text = torch.ones(
                 text_inputs.shape[0],
                 text_inputs.shape[1],
                 dtype=torch.bool,
                 device=text_inputs.device,
-            )
+            )  # text_inputs [3,74] attn_mask_text > [3,74] all True
             attn_mask_mel = torch.ones(
                 audio_codes.shape[0],
                 audio_codes.shape[1],
                 dtype=torch.bool,
                 device=audio_codes.device,
-            )
+            )  # audio_codes [3,180] attn_mask_mel [3,180] all True
 
-            if cond_idxs is not None:
+            if cond_idxs is not None:  # yes
                 # use masking approach
-                for idx, r in enumerate(cond_idxs):
-                    l = r[1] - r[0]
+                for idx, r in enumerate(cond_idxs):   # tensor([[ 90, 547],[ 30, 428], [ 74, 580]])
+                    l = r[1] - r[0] # tensor([ 90, 547])  l 457
                     attn_mask_cond[idx, l:] = 0.0
-            elif cond_lens is not None:
+            elif cond_lens is not None: # False
                 for idx, l in enumerate(cond_lens):
                     attn_mask_cond[idx, l:] = 0.0
 
-            for idx, l in enumerate(text_lengths):
+            for idx, l in enumerate(text_lengths):  # tensor([65, 47, 72])
                 attn_mask_text[idx, l + 1 :] = 0.0
 
-            for idx, l in enumerate(code_lengths):
+            for idx, l in enumerate(code_lengths):  # tensor([173, 120, 178])
                 attn_mask_mel[idx, l + 1 :] = 0.0
 
-        # Compute text embeddings + positional embeddings
+        # Compute text embeddings + positional embeddings  text_inputs: torch.Size([3, 74])
         text_emb = self.text_embedding(text_inputs) + self.text_pos_embedding(text_inputs)
-
-        # Compute mel embeddings + positional embeddings
+        # text_emb [3,74, 1024]
+        # Compute mel embeddings + positional embeddings  audio_codes: torch.Size([3, 180])
         mel_emb = self.mel_embedding(audio_codes) + self.mel_pos_embedding(audio_codes)
-
+        # mel_emb [3,180, 1024]
         # Compute speech conditioning input
-        if cond_latents is None:
-            cond_latents = self.get_style_emb(cond_mels).transpose(1, 2)
+        if cond_latents is None:  # yes
+            cond_latents = self.get_style_emb(cond_mels).transpose(1, 2)  # cond_mels [3,1,80,517] > cond_latents [3,32,1024]
 
         # Get logits
         sub = -5  # don't ask me why 😄
-        if self.training:
-            sub = -1
+        if self.training:  # yes
+            sub = -1  # sub = -1
 
         text_logits, mel_logits = self.get_logits(
-            text_emb,
-            self.text_head,
-            mel_emb,
-            self.mel_head,
-            prompt=cond_latents,
-            get_attns=return_attentions,
-            return_latent=return_latent,
+            text_emb,  # text_emb [3,74,1024]
+            self.text_head,  # Linear(in_features=1024, out_features=6153, bias=True)
+            mel_emb,  # [3,180,1024]
+            self.mel_head,  # Linear(in_features=1024, out_features=1026, bias=True)
+            prompt=cond_latents,  # cond_latents [3,32,1024]
+            get_attns=return_attentions,  # return_attentions False
+            return_latent=return_latent,  # return_latent False
             attn_mask_cond=attn_mask_cond,
             attn_mask_text=attn_mask_text,
             attn_mask_mel=attn_mask_mel,
-        )
-        if return_latent:
+        )  # text_logits > [3,6153,74]  mel_logits > [3,1026,180]
+        if return_latent:  # False
             return mel_logits[:, :sub]  # sub to prevent bla.
 
-        if return_attentions:
+        if return_attentions:  # False
             return mel_logits
 
         # Set paddings to -1 to ignore them in loss
@@ -535,24 +535,24 @@ class GPT(nn.Module):
 
         # check if stoptoken is in every row of mel_targets
         assert (mel_targets == self.stop_audio_token).sum() >= mel_targets.shape[
-            0
+            0  # self.stop_audio_token = 1025
         ], f" ❗ mel_targets does not contain stop token ({self.stop_audio_token}) in every row."
 
         # ignore the loss for the segment used for conditioning
         # coin flip for the segment to be ignored
-        if cond_idxs is not None:
-            cond_start = cond_idxs[idx, 0]
-            cond_end = cond_idxs[idx, 1]
-            mel_targets[idx, cond_start:cond_end] = -1
+        if cond_idxs is not None:  # tensor([[ 90, 547], [ 30, 428], [ 74, 580]])
+            cond_start = cond_idxs[idx, 0]  # idx = 2  cond_start 74
+            cond_end = cond_idxs[idx, 1]  # idx = 2  cond_end 580
+            mel_targets[idx, cond_start:cond_end] = -1  # mel_targets [3,180]
 
         # Compute losses
         loss_text = F.cross_entropy(
             text_logits, text_targets.long(), ignore_index=-1, label_smoothing=self.label_smoothing
-        )
+        )  # self.label_smoothing 0.0  text_logits [3,6153,74] text_targets [3,74]
         loss_mel = F.cross_entropy(
             mel_logits, mel_targets.long(), ignore_index=-1, label_smoothing=self.label_smoothing
-        )
-        return loss_text.mean(), loss_mel.mean(), mel_logits
+        )  # mel_logits [3,1026,180]  mel_targets [3,180]
+        return loss_text.mean(), loss_mel.mean(), mel_logits  #  mel_logits [3,1026,180]
 
     def inference(self, cond_latents, text_inputs, **hf_generate_kwargs):
         self.compute_embeddings(cond_latents, text_inputs)
@@ -586,7 +586,7 @@ class GPT(nn.Module):
         text_inputs,
         **hf_generate_kwargs,
     ):
-        gpt_inputs = self.compute_embeddings(cond_latents, text_inputs)
+        gpt_inputs = self.compute_embeddings(cond_latents, text_inputs)  # [1,90]
         gen = self.gpt_inference.generate(
             gpt_inputs,
             bos_token_id=self.start_audio_token,
@@ -594,10 +594,10 @@ class GPT(nn.Module):
             eos_token_id=self.stop_audio_token,
             max_length=self.max_gen_mel_tokens + gpt_inputs.shape[-1],
             **hf_generate_kwargs,
-        )
-        if "return_dict_in_generate" in hf_generate_kwargs:
+        )  # gen: [1,225]
+        if "return_dict_in_generate" in hf_generate_kwargs:  # False
             return gen.sequences[:, gpt_inputs.shape[1] :], gen
-        return gen[:, gpt_inputs.shape[1] :]
+        return gen[:, gpt_inputs.shape[1] :]   # gen[:, 90:]
 
     def get_generator(self, fake_inputs, **hf_generate_kwargs):
         return self.gpt_inference.generate_stream(

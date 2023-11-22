@@ -3,7 +3,7 @@
 RUN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 echo $RUN_DIR
 # download LJSpeech dataset
-wget http://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+#wget http://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
 # extract
 tar -xjf LJSpeech-1.1.tar.bz2
 # create train-val splits

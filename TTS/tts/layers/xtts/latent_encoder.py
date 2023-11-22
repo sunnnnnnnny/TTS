@@ -135,7 +135,53 @@ class ConditioningEncoder(nn.Module):
     def forward(self, x):
         """
         x: (b, 80, s)
-        """
-        h = self.init(x)
-        h = self.attn(h)
+        """  # x  [1,80,345]
+        h = self.init(x)  # Conv1d(80, 1024, kernel_size=(1,), stride=(1,)) -> [1,1024,345]
+        h = self.attn(h)  # -> [1,1024,345]
         return h
+"""
+Sequential(
+  (0): AttentionBlock(
+    (norm): GroupNorm32(32, 1024, eps=1e-05, affine=True)
+    (qkv): Conv1d(1024, 3072, kernel_size=(1,), stride=(1,))
+    (attention): QKVAttention()
+    (x_proj): Identity()
+    (proj_out): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,))
+  )
+  (1): AttentionBlock(
+    (norm): GroupNorm32(32, 1024, eps=1e-05, affine=True)
+    (qkv): Conv1d(1024, 3072, kernel_size=(1,), stride=(1,))
+    (attention): QKVAttention()
+    (x_proj): Identity()
+    (proj_out): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,))
+  )
+  (2): AttentionBlock(
+    (norm): GroupNorm32(32, 1024, eps=1e-05, affine=True)
+    (qkv): Conv1d(1024, 3072, kernel_size=(1,), stride=(1,))
+    (attention): QKVAttention()
+    (x_proj): Identity()
+    (proj_out): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,))
+  )
+  (3): AttentionBlock(
+    (norm): GroupNorm32(32, 1024, eps=1e-05, affine=True)
+    (qkv): Conv1d(1024, 3072, kernel_size=(1,), stride=(1,))
+    (attention): QKVAttention()
+    (x_proj): Identity()
+    (proj_out): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,))
+  )
+  (4): AttentionBlock(
+    (norm): GroupNorm32(32, 1024, eps=1e-05, affine=True)
+    (qkv): Conv1d(1024, 3072, kernel_size=(1,), stride=(1,))
+    (attention): QKVAttention()
+    (x_proj): Identity()
+    (proj_out): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,))
+  )
+  (5): AttentionBlock(
+    (norm): GroupNorm32(32, 1024, eps=1e-05, affine=True)
+    (qkv): Conv1d(1024, 3072, kernel_size=(1,), stride=(1,))
+    (attention): QKVAttention()
+    (x_proj): Identity()
+    (proj_out): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,))
+  )
+)
+"""
